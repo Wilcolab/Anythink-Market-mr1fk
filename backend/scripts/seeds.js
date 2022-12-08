@@ -7,6 +7,8 @@ const configUsers = {
     }
 };
 
+let port = 27017
+
 const usersCreation = async() => {
     const usersTokens = [];
     for (let step = 1; step < 101; step++) {
@@ -15,7 +17,7 @@ const usersCreation = async() => {
             "user": {"email": "userZZ" + step + "@user.gg", "password": "user" + step, "username": "userZZ" + step}
         };
 
-        usersTokens.push(await axios.post('http://localhost:3000/api/users', data, configUsers)
+        usersTokens.push(await axios.post('http://localhost:'+port+'/api/users', data, configUsers)
             .then((res) => {
                 console.log(`Status: ${res.status}`);
                 console.log('Body: ', res.data);
@@ -65,7 +67,7 @@ const itemsCreation = async(config) => {
             }
         };
 
-        itemSlugs.push(await axios.post('http://localhost:3000/api/items', data, config)
+        itemSlugs.push(await axios.post('http://localhost:'+port+'/api/items', data, config)
             .then((res) => {
                 console.log(`Status: ${res.status}`);
                 console.log('Body: ', res.data);
@@ -93,7 +95,7 @@ const comments = async(config, itemId) => {
             }
         };
 
-        responses.push(await axios.post('http://localhost:3000/api/items/' + itemId + '/comments', data, config)
+        responses.push(await axios.post('http://localhost:'+port+'/api/items/' + itemId + '/comments', data, config)
             .then((res) => {
                 console.log(`Status: ${res.status}`);
                 console.log('Body: ', res.data);
