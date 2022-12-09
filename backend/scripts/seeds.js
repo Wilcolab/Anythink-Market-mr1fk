@@ -24,6 +24,9 @@ const run = async () => {
     let users = await usersCreation(mongoose);
     let items = await itemsCreation(mongoose, users);
     await commentsCreation(mongoose, users, items);
+
+    console.log("All done");
+    mongoose.connection.close();
     // process.exitCode = 0;
     // process.exit(0);
 
@@ -107,11 +110,14 @@ const commentsCreation = async(mongoose, users, items) => {
 // var status = run();
 // console.log('status: ', status);
 
-run().then(() => {
-    console.log('done ');
-    process.exitCode = 0;
-    return 0;
-    // process.exit();
-});
+run()
+.then(() => {
+        process.exit();
+    })
+        .catch((err) => {
+            console.error(err);
+            process.exit();
+        });
+
 
 
