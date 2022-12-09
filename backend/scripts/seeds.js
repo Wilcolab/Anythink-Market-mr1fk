@@ -107,7 +107,11 @@ const commentsCreation = async(mongoose, users, items) => {
 // var status = run();
 // console.log('status: ', status);
 
-run().finally(() => {
-    process.exit();
+run().then(() => {
+    console.log('done ');
+    process.exitCode = 0;
+    return 0;
+    // process.exit();
 });
+
 
