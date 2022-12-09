@@ -24,8 +24,8 @@ async function run() {
     let users = await usersCreation(mongoose);
     let items = await itemsCreation(mongoose, users);
     await commentsCreation(mongoose, users, items);
-    process.exitCode = 0;
-    process.exit(0);
+    // process.exitCode = 0;
+    // process.exit(0);
 
 }
 
