@@ -2,7 +2,9 @@
 const mongoose = require("mongoose");
 
 // Set up default mongoose connection
-const mongoDB = "mongodb://mongodb-node:27017/anythink-market";
+console.log(process.env.MONGODB_URI)
+const mongoDB = process.env.MONGODB_URI
+// const mongoDB = "mongodb://mongodb-node:27017/anythink-market";
 
 async function run() {
     await mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
