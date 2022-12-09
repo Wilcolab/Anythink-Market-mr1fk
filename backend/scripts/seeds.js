@@ -6,7 +6,7 @@ console.log(process.env.MONGODB_URI)
 const mongoDB = process.env.MONGODB_URI
 // const mongoDB = "mongodb://mongodb-node:27017/anythink-market";
 
-async function run() {
+const run = async () => {
     await mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 
     // Get the default connection
@@ -65,7 +65,7 @@ const itemsCreation = async(mongoose, users) => {
         item.title = "title"+i;
         // user.email = "user"+i+ "@em.xt";
         // user.setPassword("pass"+i);
-        console.log('Item: ', item);
+        // console.log('Item: ', item);
 
         itemIds.push((await item.save().then((res) => {
             // console.log(`Status: ${res.status}`);
@@ -91,7 +91,7 @@ const commentsCreation = async(mongoose, users, items) => {
         comment.body = "comment "+i;
         // user.email = "user"+i+ "@em.xt";
         // user.setPassword("pass"+i);
-        console.log('comment: ', comment);
+        // console.log('comment: ', comment);
 
         commentIds.push((await comment.save().then((res) => {
             let token = res._id;
@@ -104,4 +104,10 @@ const commentsCreation = async(mongoose, users, items) => {
     return commentIds;
 }
 
-run();
+// var status = run();
+// console.log('status: ', status);
+
+run().finally(() => {
+    process.exit();
+});
+
