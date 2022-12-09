@@ -1,116 +1,105 @@
-const axios = require('axios');
+// Import the mongoose module
+const mongoose = require("mongoose");
 
-const configUsers = {
-    headers: {
-        "X-Requested-With": "XMLHttpRequest",
-        "Content-Type": "application/json"
-    }
-};
+// Set up default mongoose connection
+const mongoDB = "mongodb://mongodb-node:27017/anythink-market";
 
-let port = 27017
+async function run() {
+    await mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 
-const usersCreation = async() => {
-    const usersTokens = [];
-    for (let step = 1; step < 101; step++) {
+    // Get the default connection
+    const db = mongoose.connection;
 
-        const data = {
-            "user": {"email": "userZZ" + step + "@user.gg", "password": "user" + step, "username": "userZZ" + step}
-        };
+    // Bind connection to error event (to get notification of connection errors)
+    db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-        usersTokens.push(await axios.post('http://localhost:'+port+'/api/users', data, configUsers)
-            .then((res) => {
-                console.log(`Status: ${res.status}`);
-                console.log('Body: ', res.data);
-                let token = res.data.user.token;
-                console.log('userToken: ', token)
-                return token
-            }).catch((err) => {
+    console.log('conencted: ', db.type)
+
+    require("../models/User");
+    require("../models/Item");
+    require("../models/Comment");
+
+    let users = await usersCreation(mongoose);
+    let items = await itemsCreation(mongoose, users);
+    await commentsCreation(mongoose, users, items);
+    process.exitCode = 0;
+    process.exit(0);
+
+}
+
+const usersCreation = async(mongoose) => {
+    var User = mongoose.model("User");
+    await User.deleteMany();
+    const users = [];
+    for (let i = 1; i < 101; i++) {
+        var user = new User();
+        user.username = "user"+i;
+        user.email = "user"+i+ "@em.xt";
+        user.setPassword("pass"+i);
+        // console.log('User: ', user);
+
+        users.push((await user.save().then((res) => {
+            // console.log(`Status: ${res.status}`);
+            // console.log('Body: ', res);
+            let token = res._id;
+            console.log('usrId: ', token)
+            return res
+        }).catch((err) => {
             console.error(err);
-        }));
+        })));
     }
-    return usersTokens;
+    return users;
 }
 
 
+const itemsCreation = async(mongoose, users) => {
+    var Item = mongoose.model("Item");
+    await Item.deleteMany();
+    const itemIds = [];
+    for (let i = 1; i < 101; i++) {
+        var item = new Item();
+        item.seller = users[0];
+        item.slug = "sku"+i;
+        item.title = "title"+i;
+        // user.email = "user"+i+ "@em.xt";
+        // user.setPassword("pass"+i);
+        console.log('Item: ', item);
 
-usersCreation().then((userTokens) => {
-
-    let userToken = userTokens[0];
-    console.log('userToken ', userToken);
-
-    const config = {
-        headers:{
-            Authorization: "Token " + userToken,
-            "X-Requested-With": "XMLHttpRequest",
-            "Content-Type": "application/json"
-        }
-    };
-
-    // itemsCreation(config);
-    itemsCreation(config).then((items) => {
-
-    let newItem = items[0];
-    console.log('newItem ', newItem);
-    comments(config, newItem);
-});
-
-});
-
-
-const itemsCreation = async(config) => {
-    const itemSlugs = [];
-    for (let step = 1; step < 101; step++) {
-        const data = {
-            item: {
-                title: 'Itemx_' + step,
-                description: 'Desc Item_' + step
-            }
-        };
-
-        itemSlugs.push(await axios.post('http://localhost:'+port+'/api/items', data, config)
-            .then((res) => {
-                console.log(`Status: ${res.status}`);
-                console.log('Body: ', res.data);
-                let slug = res.data.item.slug
-                console.log('Slug: ', slug)
-                // itemSlugs.push(slug);
-                console.log(itemSlugs)
-                return slug
-            }).catch((err) => {
+        itemIds.push((await item.save().then((res) => {
+            // console.log(`Status: ${res.status}`);
+            // console.log('Body: ', res);
+            let token = res._id;
+            console.log('itemId: ', token)
+            return token
+        }).catch((err) => {
             console.error(err);
-        }));
-
+        })));
     }
-    return itemSlugs;
+    return itemIds;
 }
 
+const commentsCreation = async(mongoose, users, items) => {
+    var Comment = mongoose.model("Comment");
+    await Comment.deleteMany();
+    const commentIds = [];
+    for (let i = 1; i < 101; i++) {
+        var comment = new Comment();
+        comment.seller = users[0];
+        comment.item = items[0];
+        comment.body = "comment "+i;
+        // user.email = "user"+i+ "@em.xt";
+        // user.setPassword("pass"+i);
+        console.log('comment: ', comment);
 
-
-const comments = async(config, itemId) => {
-    const responses = [];
-    for (let step = 1; step < 101; step++) {
-        const data = {
-            comment: {
-                body: 'comment_' + step
-            }
-        };
-
-        responses.push(await axios.post('http://localhost:'+port+'/api/items/' + itemId + '/comments', data, config)
-            .then((res) => {
-                console.log(`Status: ${res.status}`);
-                console.log('Body: ', res.data);
-                console.log('itemId: ', itemId);
-            }).catch((err) => {
-                console.error(err);
-            }));
-
-
+        commentIds.push((await comment.save().then((res) => {
+            let token = res._id;
+            console.log('commentId: ', token)
+            return token
+        }).catch((err) => {
+            console.error(err);
+        })));
     }
+    return commentIds;
 }
 
-
-
-
-
-
-
+run();
